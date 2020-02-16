@@ -28,14 +28,14 @@ prompt APPLICATION 100 - Proyecto Estadistica
 -- Application Export:
 --   Application:     100
 --   Name:            Proyecto Estadistica
---   Date and Time:   02:34 Thursday February 13, 2020
+--   Date and Time:   17:35 Sunday February 16, 2020
 --   Exported By:     JOHAO
 --   Flashback:       0
 --   Export Type:     Application Export
---     Pages:                     15
---       Items:                   29
+--     Pages:                     16
+--       Items:                   30
 --       Processes:               21
---       Regions:                 22
+--       Regions:                 24
 --       Buttons:                 21
 --       Dynamic Actions:          2
 --     Shared Components:
@@ -115,7 +115,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'Projecto Estadistica'
 ,p_last_updated_by=>'JOHAO'
-,p_last_upd_yyyymmddhh24miss=>'20200213023330'
+,p_last_upd_yyyymmddhh24miss=>'20200216172529'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>3
 ,p_ui_type_name => null
@@ -223,6 +223,14 @@ wwv_flow_api.create_list_item(
 ,p_list_item_icon=>'fa-archive'
 ,p_parent_list_item_id=>wwv_flow_api.id(6684741869626459)
 ,p_list_item_current_type=>'TARGET_PAGE'
+);
+wwv_flow_api.create_list_item(
+ p_id=>wwv_flow_api.id(7840782557016133)
+,p_list_item_display_sequence=>120
+,p_list_item_link_text=>'Notas de Estudiantes'
+,p_list_item_link_target=>'f?p=&APP_ID.:14:&SESSION.::&DEBUG.'
+,p_list_item_current_type=>'COLON_DELIMITED_PAGE_LIST'
+,p_list_item_current_for_pages=>'14'
 );
 end;
 /
@@ -504,12 +512,13 @@ begin
 wwv_flow_api.create_list_of_values(
  p_id=>wwv_flow_api.id(6831494265336478)
 ,p_lov_name=>'SEMESTRES MALLA'
-,p_source_type=>'TABLE'
+,p_lov_query=>'select ID, (SELECT F_MALLA(ID_MALLA) FROM DUAL) || '' - '' || (SELECT F_SEMESTRE(ID_SEMESTRE) FROM DUAL) AS DISPLAY from SEMESTRE_MALLA'
+,p_source_type=>'SQL'
 ,p_location=>'LOCAL'
 ,p_query_table=>'SEMESTRE_MALLA'
 ,p_return_column_name=>'ID'
-,p_display_column_name=>'ID_SEMESTRE'
-,p_default_sort_column_name=>'ID_SEMESTRE'
+,p_display_column_name=>'DISPLAY'
+,p_group_sort_direction=>'ASC'
 ,p_default_sort_direction=>'ASC'
 );
 end;
@@ -10706,7 +10715,7 @@ wwv_flow_api.create_authentication(
 'AS',
 '    V_VARIABLE NUMBER := 0;',
 'BEGIN',
-'    SELECT 1 INTO V_VARIABLE FROM PERSONA WHERE UPPER (NOMBRE) = UPPER (P_USERNAME) AND (CLAVE) = P_PASSWORD;',
+'    SELECT 1 INTO V_VARIABLE FROM PERSONA WHERE UPPER (USUARIO) = UPPER (P_USERNAME) AND (CLAVE) = P_PASSWORD;',
 '    RETURN TRUE;',
 '    EXCEPTION WHEN NO_DATA_FOUND THEN',
 '    RETURN FALSE;',
@@ -10990,7 +10999,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_protection_level=>'C'
 ,p_last_updated_by=>'JOHAO'
-,p_last_upd_yyyymmddhh24miss=>'20200213023330'
+,p_last_upd_yyyymmddhh24miss=>'20200216164556'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(6648766783346426)
@@ -11006,6 +11015,7 @@ wwv_flow_api.create_page_plug(
 ,p_edit_operations=>'i:u:d'
 ,p_lost_update_check_type=>'VALUES'
 ,p_plug_source_type=>'NATIVE_FORM'
+,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(6670330465430701)
@@ -11323,19 +11333,14 @@ wwv_flow_api.create_page_branch(
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(6649184113346427)
 ,p_name=>'P3_ROWID'
-,p_source_data_type=>'VARCHAR2'
+,p_source_data_type=>'ROWID'
 ,p_is_primary_key=>true
 ,p_item_sequence=>10
 ,p_item_plug_id=>wwv_flow_api.id(6648766783346426)
 ,p_item_source_plug_id=>wwv_flow_api.id(6648766783346426)
-,p_use_cache_before_default=>'NO'
-,p_prompt=>'Rowid'
 ,p_source=>'ROWID'
 ,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_HIDDEN'
-,p_label_alignment=>'RIGHT'
-,p_field_template=>wwv_flow_api.id(6501867520797321)
-,p_item_template_options=>'#DEFAULT#'
 ,p_is_persistent=>'N'
 ,p_protection_level=>'S'
 ,p_attribute_01=>'Y'
@@ -11464,7 +11469,7 @@ wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(6651961582346448)
 ,p_name=>'P3_CLAVE'
 ,p_source_data_type=>'VARCHAR2'
-,p_item_sequence=>80
+,p_item_sequence=>90
 ,p_item_plug_id=>wwv_flow_api.id(6648766783346426)
 ,p_item_source_plug_id=>wwv_flow_api.id(6648766783346426)
 ,p_prompt=>'Clave'
@@ -11473,7 +11478,11 @@ wwv_flow_api.create_page_item(
 ,p_display_as=>'NATIVE_PASSWORD'
 ,p_cSize=>60
 ,p_cMaxlength=>250
-,p_grid_column=>11
+,p_begin_on_new_line=>'N'
+,p_colspan=>3
+,p_display_when=>'P3_ID_ROL'
+,p_display_when2=>'3'
+,p_display_when_type=>'VAL_OF_ITEM_IN_COND_NOT_EQ_COND2'
 ,p_field_template=>wwv_flow_api.id(6501867520797321)
 ,p_item_template_options=>'#DEFAULT#'
 ,p_is_persistent=>'N'
@@ -11489,6 +11498,31 @@ wwv_flow_api.create_page_item(
 ,p_source_type=>'QUERY'
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(7592205460621013)
+,p_name=>'P3_USUARIO'
+,p_source_data_type=>'VARCHAR2'
+,p_item_sequence=>80
+,p_item_plug_id=>wwv_flow_api.id(6648766783346426)
+,p_item_source_plug_id=>wwv_flow_api.id(6648766783346426)
+,p_prompt=>'Usuario'
+,p_source=>'USUARIO'
+,p_source_type=>'REGION_SOURCE_COLUMN'
+,p_display_as=>'NATIVE_TEXT_FIELD'
+,p_cSize=>30
+,p_cMaxlength=>150
+,p_grid_column=>7
+,p_display_when=>'P3_ID_ROL'
+,p_display_when2=>'3'
+,p_display_when_type=>'VAL_OF_ITEM_IN_COND_NOT_EQ_COND2'
+,p_field_template=>wwv_flow_api.id(6501867520797321)
+,p_item_template_options=>'#DEFAULT#'
+,p_is_persistent=>'N'
+,p_attribute_01=>'N'
+,p_attribute_02=>'N'
+,p_attribute_04=>'TEXT'
+,p_attribute_05=>'BOTH'
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(6657551306346463)
@@ -12962,7 +12996,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_protection_level=>'C'
 ,p_last_updated_by=>'JOHAO'
-,p_last_upd_yyyymmddhh24miss=>'20200202124724'
+,p_last_upd_yyyymmddhh24miss=>'20200216160645'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(6816274324298721)
@@ -13155,6 +13189,7 @@ wwv_flow_api.create_page_item(
 ,p_source_type=>'REGION_SOURCE_COLUMN'
 ,p_display_as=>'NATIVE_SELECT_LIST'
 ,p_named_lov=>'SEMESTRES MALLA'
+,p_lov=>'select ID, (SELECT F_MALLA(ID_MALLA) FROM DUAL) || '' - '' || (SELECT F_SEMESTRE(ID_SEMESTRE) FROM DUAL) AS DISPLAY from SEMESTRE_MALLA'
 ,p_cHeight=>1
 ,p_begin_on_new_line=>'N'
 ,p_field_template=>wwv_flow_api.id(6501867520797321)
@@ -13199,7 +13234,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_protection_level=>'C'
 ,p_last_updated_by=>'JOHAO'
-,p_last_upd_yyyymmddhh24miss=>'20200213015535'
+,p_last_upd_yyyymmddhh24miss=>'20200216162701'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(6672093885430718)
@@ -13223,6 +13258,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_point=>'BODY'
 ,p_query_type=>'TABLE'
 ,p_query_table=>'NOTA'
+,p_query_where=>'ID_PARCIAL = :P12_ID'
 ,p_include_rowid_column=>false
 ,p_plug_source_type=>'NATIVE_IR'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -13442,7 +13478,7 @@ wwv_flow_api.create_page_button(
 ,p_button_image_alt=>'Add Note'
 ,p_button_position=>'RIGHT_OF_IR_SEARCH_BAR'
 ,p_button_redirect_url=>'f?p=&APP_ID.:13:&SESSION.::&DEBUG.:RP:P13_ID_PARCIAL:&P12_ID.'
-,p_button_condition=>'select * from nota;'
+,p_button_condition=>'select * from nota where id_parcial = :P12_ID;'
 ,p_button_condition_type=>'NOT_EXISTS'
 ,p_icon_css_classes=>'fa-plus-square'
 );
@@ -13842,6 +13878,263 @@ wwv_flow_api.create_page_process(
 ,p_process_type=>'NATIVE_FORM_INIT'
 ,p_process_name=>'Initialize form Notas'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
+);
+end;
+/
+prompt --application/pages/page_00014
+begin
+wwv_flow_api.create_page(
+ p_id=>14
+,p_user_interface_id=>wwv_flow_api.id(6525438868797435)
+,p_name=>'Notas de Estudiantes'
+,p_step_title=>'Notas de Estudiantes'
+,p_autocomplete_on_off=>'OFF'
+,p_page_template_options=>'#DEFAULT#'
+,p_last_updated_by=>'JOHAO'
+,p_last_upd_yyyymmddhh24miss=>'20200216172529'
+);
+wwv_flow_api.create_page_plug(
+ p_id=>wwv_flow_api.id(7592461888621015)
+,p_plug_name=>'CHART'
+,p_region_template_options=>'#DEFAULT#:t-Region--scrollBody'
+,p_escape_on_http_output=>'Y'
+,p_plug_template=>wwv_flow_api.id(6442246084797219)
+,p_plug_display_sequence=>20
+,p_include_in_reg_disp_sel_yn=>'Y'
+,p_plug_display_point=>'BODY'
+,p_plug_source_type=>'NATIVE_JET_CHART'
+,p_plug_query_num_rows=>15
+,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+);
+wwv_flow_api.create_jet_chart(
+ p_id=>wwv_flow_api.id(7592531449621016)
+,p_region_id=>wwv_flow_api.id(7592461888621015)
+,p_chart_type=>'bar'
+,p_animation_on_display=>'auto'
+,p_animation_on_data_change=>'auto'
+,p_orientation=>'vertical'
+,p_data_cursor=>'auto'
+,p_data_cursor_behavior=>'auto'
+,p_hide_and_show_behavior=>'none'
+,p_hover_behavior=>'none'
+,p_stack=>'off'
+,p_connect_nulls=>'Y'
+,p_sorting=>'label-asc'
+,p_fill_multi_series_gaps=>true
+,p_zoom_and_scroll=>'off'
+,p_tooltip_rendered=>'Y'
+,p_show_series_name=>true
+,p_show_group_name=>true
+,p_show_value=>true
+,p_legend_rendered=>'on'
+,p_legend_position=>'auto'
+);
+wwv_flow_api.create_jet_chart_series(
+ p_id=>wwv_flow_api.id(7592630769621017)
+,p_chart_id=>wwv_flow_api.id(7592531449621016)
+,p_seq=>10
+,p_name=>'New'
+,p_data_source_type=>'SQL'
+,p_data_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'SELECT PERSONA.NOMBRE as Estudiante, MATRICULA.NOMBRE as Matricula, PARCIAL.NOMBRE as Parcial, NOTA.INVESTIGACION, ',
+'NOTA.VINCULACION, NOTA.TRABAJO_PRACTICO, NOTA.EVALUACION, NOTA.EXAMEN,',
+'(NOTA.INVESTIGACION+NOTA.VINCULACION+NOTA.TRABAJO_PRACTICO+NOTA.EVALUACION+NOTA.EXAMEN)/5 as PROMEDIO',
+'FROM PERSONA',
+'JOIN MATRICULA ON PERSONA.ID = MATRICULA.ID_PERSONA',
+'JOIN PARCIAL ON MATRICULA.ID = PARCIAL.ID_MATRICULA',
+'JOIN NOTA ON PARCIAL.ID = NOTA.ID_PARCIAL',
+'WHERE PARCIAL.NOMBRE = ''PARCIAL 1'''))
+,p_items_value_column_name=>'PROMEDIO'
+,p_items_label_column_name=>'ESTUDIANTE'
+,p_assigned_to_y2=>'off'
+,p_items_label_rendered=>false
+);
+wwv_flow_api.create_jet_chart_axis(
+ p_id=>wwv_flow_api.id(7592731447621018)
+,p_chart_id=>wwv_flow_api.id(7592531449621016)
+,p_axis=>'x'
+,p_is_rendered=>'on'
+,p_format_scaling=>'auto'
+,p_scaling=>'linear'
+,p_baseline_scaling=>'zero'
+,p_major_tick_rendered=>'on'
+,p_minor_tick_rendered=>'off'
+,p_tick_label_rendered=>'on'
+,p_tick_label_rotation=>'auto'
+,p_tick_label_position=>'outside'
+);
+wwv_flow_api.create_jet_chart_axis(
+ p_id=>wwv_flow_api.id(7592866528621019)
+,p_chart_id=>wwv_flow_api.id(7592531449621016)
+,p_axis=>'y'
+,p_is_rendered=>'on'
+,p_format_scaling=>'auto'
+,p_scaling=>'linear'
+,p_baseline_scaling=>'zero'
+,p_position=>'auto'
+,p_major_tick_rendered=>'on'
+,p_minor_tick_rendered=>'off'
+,p_tick_label_rendered=>'on'
+);
+wwv_flow_api.create_page_plug(
+ p_id=>wwv_flow_api.id(7841194714016152)
+,p_plug_name=>'Notas de Estudiantes'
+,p_region_template_options=>'#DEFAULT#'
+,p_plug_template=>wwv_flow_api.id(6440365107797217)
+,p_plug_display_sequence=>10
+,p_plug_display_point=>'BODY'
+,p_query_type=>'SQL'
+,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'SELECT PERSONA.NOMBRE as Estudiante, MATRICULA.NOMBRE as Matricula, PARCIAL.NOMBRE as Parcial, NOTA.INVESTIGACION, ',
+'NOTA.VINCULACION, NOTA.TRABAJO_PRACTICO, NOTA.EVALUACION, NOTA.EXAMEN,',
+'(NOTA.INVESTIGACION+NOTA.VINCULACION+NOTA.TRABAJO_PRACTICO+NOTA.EVALUACION+NOTA.EXAMEN)/5 as PROMEDIO',
+'FROM PERSONA',
+'JOIN MATRICULA ON PERSONA.ID = MATRICULA.ID_PERSONA',
+'JOIN PARCIAL ON MATRICULA.ID = PARCIAL.ID_MATRICULA',
+'JOIN NOTA ON PARCIAL.ID = NOTA.ID_PARCIAL'))
+,p_plug_source_type=>'NATIVE_IR'
+,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+);
+wwv_flow_api.create_worksheet(
+ p_id=>wwv_flow_api.id(7841280738016152)
+,p_name=>'Notas de Estudiantes'
+,p_max_row_count_message=>'The maximum row count for this report is #MAX_ROW_COUNT# rows.  Please apply a filter to reduce the number of records in your query.'
+,p_no_data_found_message=>'No data found.'
+,p_show_nulls_as=>'-'
+,p_pagination_type=>'ROWS_X_TO_Y'
+,p_pagination_display_pos=>'BOTTOM_RIGHT'
+,p_report_list_mode=>'TABS'
+,p_show_detail_link=>'N'
+,p_download_formats=>'CSV:HTML:EMAIL:XLS:PDF:RTF'
+,p_owner=>'JOHAO'
+,p_internal_uid=>7841280738016152
+);
+wwv_flow_api.create_worksheet_column(
+ p_id=>wwv_flow_api.id(7841660463016189)
+,p_db_column_name=>'ESTUDIANTE'
+,p_display_order=>1
+,p_column_identifier=>'A'
+,p_column_label=>'Estudiante'
+,p_column_type=>'STRING'
+,p_heading_alignment=>'LEFT'
+,p_tz_dependent=>'N'
+);
+wwv_flow_api.create_worksheet_column(
+ p_id=>wwv_flow_api.id(7841945684016223)
+,p_db_column_name=>'MATRICULA'
+,p_display_order=>2
+,p_column_identifier=>'B'
+,p_column_label=>'Matricula'
+,p_column_type=>'STRING'
+,p_heading_alignment=>'LEFT'
+,p_tz_dependent=>'N'
+);
+wwv_flow_api.create_worksheet_column(
+ p_id=>wwv_flow_api.id(7842307091016223)
+,p_db_column_name=>'PARCIAL'
+,p_display_order=>3
+,p_column_identifier=>'C'
+,p_column_label=>'Parcial'
+,p_column_type=>'STRING'
+,p_heading_alignment=>'LEFT'
+,p_tz_dependent=>'N'
+);
+wwv_flow_api.create_worksheet_column(
+ p_id=>wwv_flow_api.id(7842738318016224)
+,p_db_column_name=>'INVESTIGACION'
+,p_display_order=>4
+,p_column_identifier=>'D'
+,p_column_label=>'Investigacion'
+,p_column_type=>'NUMBER'
+,p_heading_alignment=>'RIGHT'
+,p_column_alignment=>'RIGHT'
+,p_tz_dependent=>'N'
+);
+wwv_flow_api.create_worksheet_column(
+ p_id=>wwv_flow_api.id(7843173242016227)
+,p_db_column_name=>'VINCULACION'
+,p_display_order=>5
+,p_column_identifier=>'E'
+,p_column_label=>'Vinculacion'
+,p_column_type=>'NUMBER'
+,p_heading_alignment=>'RIGHT'
+,p_column_alignment=>'RIGHT'
+,p_tz_dependent=>'N'
+);
+wwv_flow_api.create_worksheet_column(
+ p_id=>wwv_flow_api.id(7843586953016228)
+,p_db_column_name=>'TRABAJO_PRACTICO'
+,p_display_order=>6
+,p_column_identifier=>'F'
+,p_column_label=>'Trabajo Practico'
+,p_column_type=>'NUMBER'
+,p_heading_alignment=>'RIGHT'
+,p_column_alignment=>'RIGHT'
+,p_tz_dependent=>'N'
+);
+wwv_flow_api.create_worksheet_column(
+ p_id=>wwv_flow_api.id(7843955606016229)
+,p_db_column_name=>'EVALUACION'
+,p_display_order=>7
+,p_column_identifier=>'G'
+,p_column_label=>'Evaluacion'
+,p_column_type=>'NUMBER'
+,p_heading_alignment=>'RIGHT'
+,p_column_alignment=>'RIGHT'
+,p_tz_dependent=>'N'
+);
+wwv_flow_api.create_worksheet_column(
+ p_id=>wwv_flow_api.id(7844345674016229)
+,p_db_column_name=>'EXAMEN'
+,p_display_order=>8
+,p_column_identifier=>'H'
+,p_column_label=>'Examen'
+,p_column_type=>'NUMBER'
+,p_heading_alignment=>'RIGHT'
+,p_column_alignment=>'RIGHT'
+,p_tz_dependent=>'N'
+);
+wwv_flow_api.create_worksheet_column(
+ p_id=>wwv_flow_api.id(7592354143621014)
+,p_db_column_name=>'PROMEDIO'
+,p_display_order=>18
+,p_column_identifier=>'I'
+,p_column_label=>'Promedio'
+,p_column_type=>'NUMBER'
+,p_column_alignment=>'RIGHT'
+);
+wwv_flow_api.create_worksheet_rpt(
+ p_id=>wwv_flow_api.id(7844766891018150)
+,p_application_user=>'APXWS_DEFAULT'
+,p_report_seq=>10
+,p_report_alias=>'78448'
+,p_status=>'PUBLIC'
+,p_is_default=>'Y'
+,p_report_columns=>'ESTUDIANTE:MATRICULA:PARCIAL:INVESTIGACION:VINCULACION:TRABAJO_PRACTICO:EVALUACION:EXAMEN:PROMEDIO'
+);
+wwv_flow_api.create_worksheet_condition(
+ p_id=>wwv_flow_api.id(7845769537022741)
+,p_report_id=>wwv_flow_api.id(7844766891018150)
+,p_condition_type=>'FILTER'
+,p_allow_delete=>'Y'
+,p_column_name=>'PARCIAL'
+,p_operator=>'='
+,p_expr=>'PARCIAL 1'
+,p_condition_sql=>'"PARCIAL" = #APXWS_EXPR#'
+,p_condition_display=>'#APXWS_COL_NAME# = ''PARCIAL 1''  '
+,p_enabled=>'Y'
+);
+wwv_flow_api.create_worksheet_condition(
+ p_id=>wwv_flow_api.id(7846145760022742)
+,p_report_id=>wwv_flow_api.id(7844766891018150)
+,p_condition_type=>'FILTER'
+,p_allow_delete=>'Y'
+,p_column_name=>'PARCIAL'
+,p_operator=>'='
+,p_expr=>'PARCIAL 2'
+,p_condition_sql=>'"PARCIAL" = #APXWS_EXPR#'
+,p_condition_display=>'#APXWS_COL_NAME# = ''PARCIAL 2''  '
+,p_enabled=>'N'
 );
 end;
 /
